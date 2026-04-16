@@ -8,7 +8,7 @@ A data integration project that offers the project frame and automatic tests for
 ## Getting started
 1. Clone repo
   ```
-  git clone git@github.com:UMR-Big-Data-Analytics/ddm-akka.git
+  git clone git@github.com:UMR-Big-Data-Analytics/di-integration.git
   ```
 
 2. Build project with maven
