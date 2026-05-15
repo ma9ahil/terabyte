@@ -44,7 +44,47 @@ public class Levenshtein implements SimilarityMeasure {
 
         //                                                                                                            //
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        int n = string1.length();
+        int m = string2.length();
 
+        // Edge case: Both empty strings are identical
+        if (n == 0 && m == 0) return 1.0;
+        // Edge case: One string is empty, distance is the length of the other string
+        if (n == 0 || m == 0) return 0.0;
+
+        for (int i = 1; i <= m; i++) {
+            lowerLine[0] = i;
+            for (int j = 1; j <= n; j++) {
+                // Cost of substitution: 0 if characters match, 1 otherwise
+                int cost = (string1.charAt(j - 1) == string2.charAt(i - 1)) ? 0 : 1;
+
+                // Standard Levenshtein: Min of Deletion, Insertion, Substitution
+                lowerLine[j] = min(
+                        upperLine[j] + 1,        // Deletion
+                        lowerLine[j - 1] + 1,    // Insertion
+                        upperLine[j - 1] + cost  // Substitution
+                );
+
+                // Damerau extension: Check for transpositions
+                if (withDamerau && i > 1 && j > 1 &&
+                        string1.charAt(j - 1) == string2.charAt(i - 2) &&
+                        string1.charAt(j - 2) == string2.charAt(i - 1)) {
+
+                    // The cost of a transposition is 1 + distance before the two swapped characters
+                    lowerLine[j] = Math.min(lowerLine[j], upperupperLine[j - 2] + 1);
+                }
+            }
+
+            // Rotate the lines for the next iteration
+            // upperupperLine becomes the row from 2 steps ago (i-1 before the shift)
+            System.arraycopy(upperLine, 0, upperupperLine, 0, n + 1);
+            // upperLine becomes the current row (i) to be used as i-1 in the next step
+            System.arraycopy(lowerLine, 0, upperLine, 0, n + 1);
+        }
+
+        // Similarity = 1 - (Normalized Distance)
+        int finalDistance = upperLine[n];
+        levenshteinSimilarity = 1.0 - ((double) finalDistance / Math.max(n, m));
         return levenshteinSimilarity;
     }
 
@@ -80,7 +120,38 @@ public class Levenshtein implements SimilarityMeasure {
 
         //                                                                                                            //
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        int n = strings1.length;
+        int m = strings2.length;
 
+        if (n == 0 && m == 0) return 1.0;
+        if (n == 0 || m == 0) return 0.0;
+
+        for (int i = 1; i <= m; i++) {
+            lowerLine[0] = i;
+            for (int j = 1; j <= n; j++) {
+                // Use .equals() for String content comparison in arrays
+                int cost = (strings1[j - 1].equals(strings2[i - 1])) ? 0 : 1;
+
+                lowerLine[j] = min(
+                        upperLine[j] + 1,
+                        lowerLine[j - 1] + 1,
+                        upperLine[j - 1] + cost
+                );
+
+                if (withDamerau && i > 1 && j > 1 &&
+                        strings1[j - 1].equals(strings2[i - 2]) &&
+                        strings1[j - 2].equals(strings2[i - 1])) {
+
+                    lowerLine[j] = Math.min(lowerLine[j], upperupperLine[j - 2] + 1);
+                }
+            }
+
+            System.arraycopy(upperLine, 0, upperupperLine, 0, n + 1);
+            System.arraycopy(lowerLine, 0, upperLine, 0, n + 1);
+        }
+
+        int finalDistance = upperLine[n];
+        levenshteinSimilarity = 1.0 - ((double) finalDistance / Math.max(n, m));
         return levenshteinSimilarity;
     }
 }
