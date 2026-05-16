@@ -58,7 +58,27 @@ public class LocalitySensitiveHashing implements SimilarityMeasure {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //                                      DATA INTEGRATION ASSIGNMENT                                           //
         // Calculate the two signatures by using the internal MinHash functions. Then, use the signatures to          //
-        // approximate the Jaccard similarity.                                                                        //
+        // approximate the Jaccard similarity.
+        
+        // Calculate signatures
+for (int i = 0; i < k; i++) {
+    MinHash minHash = this.minHashFunctions.get(i);
+
+    signature1[i] = String.valueOf(minHash.hash(strings1));
+    signature2[i] = String.valueOf(minHash.hash(strings2));
+}
+
+// Count equal signature positions
+int equalCount = 0;
+
+for (int i = 0; i < k; i++) {
+    if (signature1[i].equals(signature2[i])) {
+        equalCount++;
+    }
+}
+
+// Approximate Jaccard similarity
+lshJaccard = (double) equalCount / k;                                                                      //
 
 
 
