@@ -37,9 +37,46 @@ public class UCCProfiler {
         // AttributeList offers some helpful functions to test for sub- and superset relationships. Use PLI           //
         // intersection to validate the candidates in every lattice level. Advances techniques, such as random walks, //
         // hybrid search strategies, or hitting set reasoning can be used, but are optional to pass the assignment.   //
+        // Track the current level's attribute combinations as arrays and their corresponding PLIs
+        // Level-wise lattice traversal for UCCs of size n > 1
+        
+        while (!currentNonUniques.isEmpty()) {
+            List<PositionListIndex> nextNonUniques = new ArrayList<>();
 
+            for (int i = 0; i < currentNonUniques.size(); i++) {
+                for (int j = i + 1; j < currentNonUniques.size(); j++) {
+                    PositionListIndex pliA = currentNonUniques.get(i);
+                    PositionListIndex pliB = currentNonUniques.get(j);
 
+                    AttributeList attrA = pliA.getAttributes();
+                    AttributeList attrB = pliB.getAttributes();
 
+                    if (!attrA.samePrefixAs(attrB))
+                        continue;
+
+                    AttributeList candidateAttrs = attrA.union(attrB);
+
+                    boolean nonMinimal = false;
+                    for (UCC ucc : uniques) {
+                        if (candidateAttrs.getAttributeSet().containsAll(ucc.getAttributeList().getAttributeSet())) {
+                            nonMinimal = true;
+                            break;
+                        }
+                    }
+                    if (nonMinimal)
+                        continue;
+
+                    PositionListIndex candidatePli = pliA.intersect(pliB);
+
+                    if (candidatePli.isUnique())
+                        uniques.add(new UCC(relation, candidateAttrs));
+                    else
+                        nextNonUniques.add(candidatePli);
+                }
+            }
+
+            currentNonUniques = nextNonUniques;
+        }
         //                                                                                                            //
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
