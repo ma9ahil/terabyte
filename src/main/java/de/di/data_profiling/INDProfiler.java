@@ -22,7 +22,7 @@ public class INDProfiler {
         // discoverNary indicates, whether only unary or both unary and n-ary INDs should be discovered. To solve     //
         // this assignment, only unary INDs need to be discovered. Discovering also n-ary INDs is optional.           //
 
-
+        
 
         //                                                                                                            //
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

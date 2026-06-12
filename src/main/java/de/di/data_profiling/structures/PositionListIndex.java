@@ -69,7 +69,26 @@ public class PositionListIndex {
         // invertedClusters. The clustersIntersection is a new list that stores the intersection result. Note that    //
         // the clusters are "Stripped Partitions", which means that only clusters of size >1 are part of the result.  //
 
+         for (IntArrayList cluster : clusters) {
 
+    Int2ObjectMap<IntArrayList> tempClusters = new Int2ObjectArrayMap<>();
+
+    for (int record : cluster) {
+
+        int otherClusterId = invertedClusters[record];
+
+        if (otherClusterId == -1)
+            continue;
+
+        tempClusters.putIfAbsent(otherClusterId, new IntArrayList());
+        tempClusters.get(otherClusterId).add(record);
+    }
+
+    for (IntArrayList newCluster : tempClusters.values()) {
+        if (newCluster.size() > 1)
+            clustersIntersection.add(newCluster);
+    }
+}
 
         //                                                                                                            //
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
