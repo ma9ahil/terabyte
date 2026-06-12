@@ -22,7 +22,41 @@ public class INDProfiler {
         // discoverNary indicates, whether only unary or both unary and n-ary INDs should be discovered. To solve     //
         // this assignment, only unary INDs need to be discovered. Discovering also n-ary INDs is optional.           //
 
-        
+        // Extract unique values for each column in each relation
+        Map<Relation, List<Set<String>>> relationColumnValues = new HashMap<>();
+        for (Relation relation : relations) {
+            String[][] columns = relation.getColumns();
+            List<Set<String>> columnValues = new ArrayList<>();
+            for (String[] column : columns) {
+                columnValues.add(new HashSet<>(Arrays.asList(column)));
+            }
+            relationColumnValues.put(relation, columnValues);
+        }
+
+        // Check all pairs of columns for inclusion dependencies
+        for (int i = 0; i < relations.size(); i++) {
+            Relation lhsRelation = relations.get(i);
+            for (int lhsAttribute = 0; lhsAttribute < lhsRelation.getAttributes().length; lhsAttribute++) {
+                for (int j = 0; j < relations.size(); j++) {
+                    Relation rhsRelation = relations.get(j);
+                    for (int rhsAttribute = 0; rhsAttribute < rhsRelation.getAttributes().length; rhsAttribute++) {
+                        // Skip trivial INDs (same attribute in same relation)
+                        if (i == j && lhsAttribute == rhsAttribute) {
+                            continue;
+                        }
+
+                        // Check if lhs values are a subset of rhs values
+                        Set<String> lhsValues = relationColumnValues.get(lhsRelation).get(lhsAttribute);
+                        Set<String> rhsValues = relationColumnValues.get(rhsRelation).get(rhsAttribute);
+
+                        if (rhsValues.containsAll(lhsValues)) {
+                            IND ind = new IND(lhsRelation, lhsAttribute, rhsRelation, rhsAttribute);
+                            inclusionDependencies.add(ind);
+                        }
+                    }
+                }
+            }
+        }
 
         //                                                                                                            //
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
