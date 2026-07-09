@@ -22,7 +22,86 @@ public class SecondLineSchemaMatcher {
         //                                      DATA INTEGRATION ASSIGNMENT                                           //
         // Translate the similarity matrix into a binary correlation matrix by implementing either the StableMarriage //
         // algorithm or the Hungarian method.                                                                         //
+        int numSources = simMatrix.length;
+        int numTargets = simMatrix[0].length;
 
+        int[] sourceAssignments = new int[numSources];
+        Arrays.fill(sourceAssignments, -1);
+
+        int[] targetAssignments = new int[numTargets];
+        Arrays.fill(targetAssignments, -1);
+
+        int[][] preferences = new int[numSources][numTargets];
+
+        for (int s = 0; s < numSources; s++) {
+
+            final int sourceIndex = s;
+
+            Integer[] targets = new Integer[numTargets];
+
+            for (int t = 0; t < numTargets; t++) {
+                targets[t] = t;
+            }
+
+            Arrays.sort(
+                    targets,
+                    (a, b) -> Double.compare(
+                            simMatrix[sourceIndex][b],
+                            simMatrix[sourceIndex][a]
+                    )
+            );
+
+            for (int t = 0; t < numTargets; t++) {
+                preferences[s][t] = targets[t];
+            }
+        }
+
+        int[] nextProposal = new int[numSources];
+
+        boolean progress = true;
+
+        while (progress) {
+
+            progress = false;
+
+            for (int source = 0; source < numSources; source++) {
+
+                if (sourceAssignments[source] != -1)
+                    continue;
+
+                if (nextProposal[source] >= numTargets)
+                    continue;
+
+                progress = true;
+
+                int target = preferences[source][nextProposal[source]];
+                nextProposal[source]++;
+
+                if (targetAssignments[target] == -1) {
+
+                    sourceAssignments[source] = target;
+                    targetAssignments[target] = source;
+
+                } else {
+
+                    int currentSource = targetAssignments[target];
+
+                    if (simMatrix[source][target]
+                            > simMatrix[currentSource][target]) {
+
+                        sourceAssignments[currentSource] = -1;
+
+                        sourceAssignments[source] = target;
+                        targetAssignments[target] = source;
+                    }
+                }
+            }
+        }
+
+        corrMatrix = assignmentArray2correlationMatrix(
+                sourceAssignments,
+                simMatrix
+        );
 
 
         //                                                                                                            //
