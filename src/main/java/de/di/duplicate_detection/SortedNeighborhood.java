@@ -50,10 +50,6 @@ public class SortedNeighborhood {
         // matching records. Use the provided sortingKeys, windowSize, and recordComparator to implement the Sorted   //
         // Neighborhood Method correctly.                                                                             //
 
-
-
-        //                                                                                                            //
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         for (int sortingKey : sortingKeys) {
             // Sort a copy of the records by the current sorting key (lexicographical order of the attribute value).
             Record[] sortedRecords = Arrays.copyOf(records, records.length);
@@ -74,6 +70,10 @@ public class SortedNeighborhood {
                 }
             }
         }
+
+        //                                                                                                            //
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         return duplicates;
     }
 
@@ -95,10 +95,6 @@ public class SortedNeighborhood {
         // is usually learned by machine learning algorithms, but a creative, heuristics-based solution is sufficient //
         // here.                                                                                                      //
 
-
-
-        //                                                                                                            //
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         int numAttributes = relation.getAttributes().length;
         double equalWeight = 1.0 / numAttributes;
 
@@ -108,6 +104,10 @@ public class SortedNeighborhood {
         for (int attribute = 0; attribute < numAttributes; attribute++) {
             attrSimWeights.add(new AttrSimWeight(attribute, new Jaccard(new Tokenizer(2, false), false), equalWeight));
         }
+
+
+        //                                                                                                            //
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         return new RecordComparator(attrSimWeights, threshold);
     }
 }

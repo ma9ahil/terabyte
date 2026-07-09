@@ -29,7 +29,38 @@ public class TransitiveClosure {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //                                      DATA INTEGRATION ASSIGNMENT                                           //
         // Calculate the transitive closure over the provided attributes using Warshall's (or Warren's) algorithm.    //
+        boolean[][] adjacency = new boolean[numRecords][numRecords];
+        for (Duplicate duplicate : duplicates) {
+            int index1 = duplicate.getIndex1();
+            int index2 = duplicate.getIndex2();
+            adjacency[index1][index2] = true;
+            adjacency[index2][index1] = true;
+        }
 
+        // Warshall's algorithm: for every intermediate node k, if i-k and k-j are connected, connect i-j (and j-i).
+        for (int k = 0; k < numRecords; k++) {
+            for (int i = 0; i < numRecords; i++) {
+                if (!adjacency[i][k])
+                    continue;
+                for (int j = 0; j < numRecords; j++) {
+                    if (i == j)
+                        continue;
+                    if (adjacency[k][j] && !adjacency[i][j]) {
+                        adjacency[i][j] = true;
+                        adjacency[j][i] = true;
+                    }
+                }
+            }
+        }
+
+        // Collect all connected pairs (i < j to avoid duplicates and identity pairs) into Duplicate objects.
+        for (int i = 0; i < numRecords; i++) {
+            for (int j = i + 1; j < numRecords; j++) {
+                if (adjacency[i][j]) {
+                    closedDuplicates.add(new Duplicate(i, j, 1.0, relation));
+                }
+            }
+        }
 
 
         //                                                                                                            //
