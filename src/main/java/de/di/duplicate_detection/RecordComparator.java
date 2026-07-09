@@ -59,7 +59,14 @@ public class RecordComparator {
 
         //                                                                                                            //
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        for (AttrSimWeight attrSimWeight : this.attrSimWeights) {
+            int attribute = attrSimWeight.getAttribute();
+            SimilarityMeasure similarityMeasure = attrSimWeight.getSimilarityMeasure();
+            double weight = attrSimWeight.getWeight();
 
+            double attributeSimilarity = similarityMeasure.calculate(tuple1[attribute], tuple2[attribute]);
+            recordSimilarity += attributeSimilarity * weight;
+        }
         return recordSimilarity;
     }
 

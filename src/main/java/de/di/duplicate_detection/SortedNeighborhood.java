@@ -54,7 +54,26 @@ public class SortedNeighborhood {
 
         //                                                                                                            //
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        for (int sortingKey : sortingKeys) {
+            // Sort a copy of the records by the current sorting key (lexicographical order of the attribute value).
+            Record[] sortedRecords = Arrays.copyOf(records, records.length);
+            Arrays.sort(sortedRecords, Comparator.comparing(r -> r.getValues()[sortingKey]));
 
+            // Slide a window of the given size over the sorted records and compare every pair within the window.
+            for (int i = 0; i < sortedRecords.length; i++) {
+                for (int j = i + 1; j < sortedRecords.length && j < i + windowSize; j++) {
+                    Record record1 = sortedRecords[i];
+                    Record record2 = sortedRecords[j];
+
+                    double similarity = recordComparator.compare(record1.getValues(), record2.getValues());
+                    if (recordComparator.isDuplicate(similarity)) {
+                        int index1 = Math.min(record1.getIndex(), record2.getIndex());
+                        int index2 = Math.max(record1.getIndex(), record2.getIndex());
+                        duplicates.add(new Duplicate(index1, index2, similarity, relation));
+                    }
+                }
+            }
+        }
         return duplicates;
     }
 
@@ -80,7 +99,15 @@ public class SortedNeighborhood {
 
         //                                                                                                            //
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        int numAttributes = relation.getAttributes().length;
+        double equalWeight = 1.0 / numAttributes;
 
+        // Heuristic: treat every attribute as free text and use Jaccard similarity over 2-grams, which is robust
+        // to typos, word reordering, and small formatting differences (e.g. "6 ECTS" vs "9 ECTS"). All attributes
+        // get equal weight since we don't have prior knowledge about which columns are more discriminative.
+        for (int attribute = 0; attribute < numAttributes; attribute++) {
+            attrSimWeights.add(new AttrSimWeight(attribute, new Jaccard(new Tokenizer(2, false), false), equalWeight));
+        }
         return new RecordComparator(attrSimWeights, threshold);
     }
 }
